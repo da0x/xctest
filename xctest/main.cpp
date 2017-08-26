@@ -16,24 +16,16 @@
 namespace xctest {
     
     namespace result {
-        std::string errormark  = "n/a";    // error
-        std::string checkmark  = "\u2713"; // ✓
-        std::string failmark   = "\u2717"; // ✗
-        std::string cancelmark = "-";      // canceled.
+        std::string errormark  = "n/a";         // error
+        std::string checkmark  = "\u2713 pass"; // ✓
+        std::string failmark   = "\u2717 fail"; // ✗
+        std::string cancelmark = "-";           // canceled.
         std::string unknown    = "?";
     }
     
     class dimension {
         std::string value;
     };
-    
-    std::string wstr(std::string str){
-        std::string wstr;
-        for (auto ch:str){
-            wstr += static_cast<wchar_t>(ch);
-        }
-        return wstr;
-    }
     
     class model {
     public:
@@ -66,12 +58,12 @@ namespace xctest {
             ascii::table &T = myTable;
             T = T("Devices x OS");
             for (auto os:this->operating_systems){
-                T = T(wstr(os));
+                T = T(os);
             }
             T++;
             
             for(auto device:this->devices){
-                T = T(wstr(device));
+                T = T(device);
                 
                 for(auto os:this->operating_systems){
                     int result = this->result_map[device][os];
@@ -81,7 +73,7 @@ namespace xctest {
                         case 2:     result_string << xctest::result::cancelmark; break;
                         case 17920: result_string << xctest::result::errormark;  break;
                         case 16640: result_string << xctest::result::failmark;   break;
-                        default:    result_string << xctest::result::unknown;
+                        default:    result_string << result;
                     }
                     T = T(result_string.str());
                 }
@@ -91,97 +83,142 @@ namespace xctest {
             
             std::cout << myTable << std::endl;
         }
+        
+        inline
+        std::size_t test_count(){
+            return this->devices.size() * this->operating_systems.size();
+        }
     };
+    
+    std::string pretty(std::string command){
+        std::stringstream pretty_command;
+        pretty_command
+        << "set -o pipefail && "
+        << command
+        << "| xcpretty -c";
+        return pretty_command.str();
+    }
+    
+    std::ostream& bold(std::ostream& os)
+    {
+        return os << "\e[1m";
+    }
+    
+    std::ostream& bold_off(std::ostream& os)
+    {
+        return os << "\e[0m";
+    }
 }
 
 
 int main(int argc, const char * argv[]) {
-    std::cout << ascii::length(xctest::result::checkmark) << std::endl;
     std::cout << "Usage: \n";
-    std::cout << "$ xctestall -workspace <workspace> -scheme <scheme> -sdk <sdk> -platform <platform>" << std::endl;
+    std::cout << "$ xctest -workspace <workspace> -scheme <scheme> -sdk <sdk> -platform <platform>" << std::endl;
     system("");
-    auto workspace = "DCI.xcworkspace";
-    auto scheme = "DCI";
-    auto sdk = "iphonesimulator";
-    auto platform = "iOS Simulator";
+    auto workspace  = "DCI.xcworkspace";
+    auto scheme     = "DCI";
+    auto sdk        = "iphonesimulator";
+    auto platform   = "iOS Simulator";
     
-    xctest::model Model;
-
-    for (std::string device:Model.devices){
+    
+    // build
+    {
+        ascii::table out("Stage I - Build for testing");
+        (out << "workspace " << "scheme" << "platform") ++;
+        (out << workspace << scheme << platform) ++;
+        std::cout << out << std::endl;
         
-        Model.result_map[device] = std::map<std::string,int>();
-        for(auto os:Model.operating_systems){
-            using xctest::wstr;
-            std::cout << "================================================" << std::endl;
-            std::cout << " Testing " << wstr(device) << " x iOS v" << wstr(os)   << std::endl;
-            std::cout << "================================================" << std::endl;
-            std::stringstream command;
-            command
-            << "set -o pipefail && "
-            << "xcodebuild test"
-            << " -workspace " << workspace
-            << " -scheme " << scheme
-            << " -sdk " << sdk
-            << " -destination "
+        std::stringstream command;
+        command
+        << "xcodebuild build-for-testing"
+        << " -workspace " << workspace
+        << " -scheme " << scheme
+        << " -sdk " << sdk
+        << " -destination \"platform=iOS Simulator,name=iPhone SE,OS=10.1\"";;
+        
+        auto pretty_command = xctest::pretty(command.str());
+        
+        std::cout
+        <<
+        "▸ "
+        << xctest::bold
+        << command.str()
+        << xctest::bold_off
+        << std::endl
+        << std::endl;
+        
+        auto result = system(pretty_command.c_str());
+        
+        std::cout << "Build command exited with code " << result << std::endl;
+        if( result != 0 ){
+            return result;
+        }
+    }
+    
+    {
+        xctest::model Model;
+        
+        
+        int current_test = 0;
+        for (std::string device:Model.devices){
+            
+            Model.result_map[device] = std::map<std::string,int>();
+            for(auto os:Model.operating_systems){
+                
+                int percent = 100*current_test/static_cast<int>(Model.test_count());
+                std::stringstream progress;
+                progress << current_test++ << " of " << Model.test_count();
+                std::stringstream percentage;
+                percentage << percent << "%";
+                
+                ascii::table out("Stage II - running tests.");
+                (out << "complete"       << "test"         << "device" << "iOS") ++;
+                (out << percentage.str() << progress.str() <<  device  <<   os ) ++;
+                std::cout << out << std::endl;
+                
+                std::stringstream command;
+                command
+                << "xcodebuild test-without-building"
+                << " -workspace " << workspace
+                << " -scheme " << scheme
+                << " -sdk " << sdk
+                << " -destination "
                 << "\""
                 << "platform=" << platform << ","
                 << "name=" << device << ","
                 << "OS=" << os
-                << "\""
-            << "| xcpretty -c";
+                << "\"";
+                
+                auto pretty_command = xctest::pretty(command.str());
+                
+                std::cout
+                <<
+                "▸ "
+                << xctest::bold
+                << command.str()
+                << xctest::bold_off
+                << std::endl
+                << std::endl;
+                
+                auto result = system(pretty_command.c_str());
+                Model.result_map[device][os] = result;
+                
+                std::cout
+                << device
+                << " for OS "
+                << os
+                << " have exited with code "
+                << result
+                << std::endl;
+            }
             
-            std::cout << command.str() << std::endl;
-            auto result = system(command.str().c_str());
-            Model.result_map[device][os] = result;
-            
-            std::cout
-            << device
-            << " for OS "
-            << os
-            << " have exited with code "
-            << result
-            << std::endl;
+            Model.print();
         }
     }
     
-    Model.print();
     
     return 0;
 }
 
-////
-//
-//std::string list_of(std::vector<std::string> vector){
-//    std::stringstream stream;
-//    for (auto element : vector){
-//        stream << " \"" << element << "\"";
-//    }
-//    return stream.str();
-//}
-//    std::cout << "matrix:" << std::endl;
-//    int i=1;
-//    for (auto device : xctest::devices){
-//        std::cout << "  - "
-//            << "CI_NODE_INDEX=" << i++ << " "
-//            << "TEST_SDK='iphonesimulator' "
-//            << "TEST_PLATFORM='iOS Simulator' "
-//            << "TEST_OS=10.3.1 "
-//            << "TEST_DEVICE_NAME='" << device << "'"
-//            << std::endl;
-//    }
-//    
-//    
-//    std::cout << "# loop through devices" << std::endl;
-//    std::cout << "for TEST_DEVICE_NAME in" << list_of(xctest::devices) << std::endl;
-//    std::cout << "do" << std::endl;
-//    std::cout << "  # loop through operating systems:";
-//    std::cout << "  for TEST_OS in" << list_of(xctest::operating_systems) << std::endl;
-//    std::cout << "  do" << std::endl;
-//    std::cout << "    # operation goes here:" << std::endl << std::endl;
-//    std::cout << "  done" << std::endl;
-//    std::cout << "done" << std::endl;
-//    
-
-    
 
 

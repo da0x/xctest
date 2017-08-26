@@ -80,6 +80,7 @@ namespace ascii
     std::size_t length( std::string _String);
     std::string fill(std::string _Str, std::size_t _Size);
     
+    class endl {};
     class table
     {
     public:
@@ -95,7 +96,14 @@ namespace ascii
         
         std::vector< std::vector<std::string> > rows;
         
-        
+        table & operator<<(std::string t){
+            return (*this)(t);
+        }
+        table & operator<<(int t){
+            std::stringstream fstr;
+            fstr << t;
+            return (*this)<< fstr.str();
+        }
         table & operator()(std::string t)
         {
             if( column >= columns.size() )
@@ -180,7 +188,7 @@ namespace ascii
             {
                 _Str
                 << "| "
-                << fill( T.rows[j][i],  T.column_widths[i] )
+                << fill( T.rows[j][i], T.column_widths[i] )
                 << " ";
             }
             _Str
@@ -218,8 +226,7 @@ namespace ascii
                 {
                     _Str
                     << "| "
-                    << std::setw( static_cast<int>(T.column_widths[i]) )
-                    << T.rows[j][i]
+                    << fill( T.rows[j][i], T.column_widths[i] )
                     << " ";
                 }
                 _Str
