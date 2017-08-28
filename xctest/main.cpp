@@ -12,12 +12,13 @@
 #include <sstream>
 #include <map>
 #include "core_tree.hpp"
+#include "xctest_options.hpp"
 
 namespace xctest {
     
     namespace result {
         std::string notyet     = "";//
-        std::string errormark  = "n/a";         // error
+        std::string notapplicable  = "n/a";         // error
         std::string checkmark  = "\u2713 pass"; // ✓
         std::string failmark   = "\u2717 fail"; // ✗
         std::string cancelmark = "-";           // canceled.
@@ -30,30 +31,23 @@ namespace xctest {
     
     class model {
     public:
-        std::vector<std::string> operating_systems = {
-            "9.0", "9.1", "9.2", "9.3", "10.0", "10.1", "10.2", "10.3.1"
-        };
-        std::vector<std::string> devices = {
-//            "iPad (5th generation)",
-//            "iPad Air 2",
-//            "iPad Pro (9.7 inch)",
-//            "iPad Pro (10.5-inch)",
-//            "iPad Pro (12.9 inch)",
-//            "iPad Pro (12.9-inch) (2nd generation)",
-//            "iPhone 5",
-            "iPhone 5s",
-//            "iPhone 6",
-//            "iPhone 6 Plus",
-            "iPhone 6s",
-            "iPhone 6s Plus",
-//            "iPhone 7",
-//            "iPhone 7 Plus",
-//            "iPhone SE",
-        };
-        
+        std::vector<std::string> operating_systems;
+        std::vector<std::string> devices;
         std::map<std::string,std::map<std::string,int>> result_map;
         
+        std::string workspace;
+        std::string scheme;
+        std::string sdk;
+        std::string platform;
+        std::string slack_channel;
+        std::string slack_message;
+        
     public:
+        model(){
+            for (std::string device:this->devices){
+                this->result_map[device] = std::map<std::string,int>();
+            }
+        }
         std::string out(){
             ascii::table myTable("Test Results");
             ascii::table &T = myTable;
@@ -73,7 +67,7 @@ namespace xctest {
                         case -1:    result_string << xctest::result::notyet;     break;
                         case 0:     result_string << xctest::result::checkmark;  break;
                         case 2:     result_string << xctest::result::cancelmark; break;
-                        case 17920: result_string << xctest::result::errormark;  break;
+                        case 17920: result_string << xctest::result::notapplicable;  break;
                         case 16640: result_string << xctest::result::failmark;   break;
                         default:    result_string << result;
                     }
@@ -81,7 +75,6 @@ namespace xctest {
                 }
                 T++;
             }
-            T ++;
             
             std::stringstream out;
             out << myTable << std::endl;
@@ -112,122 +105,156 @@ namespace xctest {
     {
         return os << "\e[0m";
     }
-}
-
-
-int main(int argc, const char * argv[]) {
-
-    std::cout << "Usage: \n";
-    std::cout << "$ xctest -workspace <workspace> -scheme <scheme> -sdk <sdk> -platform <platform>" << std::endl;
-    system("");
-    auto workspace  = "DCI.xcworkspace";
-    auto scheme     = "DCI";
-    auto sdk        = "iphonesimulator";
-    auto platform   = "iOS Simulator";
     
-    // build
-    {
-        ascii::table out("Stage I - Build for testing");
-        (out << "workspace " << "scheme" << "platform") ++;
-        (out << workspace << scheme << platform) ++;
-        std::cout << out << std::endl;
-        
-        std::stringstream command;
-        command
-        << "xcodebuild build-for-testing"
-        << " -workspace " << workspace
-        << " -scheme " << scheme
-        << " -sdk " << sdk
-        << " -destination \"platform=iOS Simulator,name=iPhone SE,OS=10.1\"";;
-        
-        auto pretty_command = xctest::pretty(command.str());
-        
-        std::cout
-        <<
-        "▸ "
-        << xctest::bold
-        << command.str()
-        << xctest::bold_off
-        << std::endl
-        << std::endl;
-        
-        auto result = system(pretty_command.c_str());
-        
-        std::cout << "Build command exited with code " << result << std::endl;
-        if( result != 0 ){
+    
+    class app {
+        xctest::model in;
+    public:
+        app(xctest::options arguments){
+            in.devices              = arguments["-devices"].values();
+            in.operating_systems    = arguments["-os-list"].values();
+            in.scheme               = arguments["-scheme"].values()[0];
+            in.platform             = arguments["-platform"].values()[0];
+            in.sdk                  = arguments["-sdk"].values()[0];
+            in.workspace            = arguments["-workspace"].values()[0];
+            in.slack_message        = arguments["-slack-message"].values()[0];
+        }
+        int clean(){
+            std::stringstream command;
+            command
+            << "xcodebuild clean";
+            
+            auto pretty_command = xctest::pretty(command.str());
+            
+            std::cout
+            <<
+            "▸ "
+            << xctest::bold
+            << command.str()
+            << xctest::bold_off
+            << std::endl
+            << std::endl;
+            return system(command.str().c_str());
+        }
+        int build(){
+            ascii::table out("Stage I - Build for testing");
+            out << "workspace " << "scheme"  << "platform"; out ++;
+            out << in.workspace << in.scheme << in.platform; out ++;
+            std::cout << out << std::endl;
+            
+            std::stringstream command;
+            command
+            << "xcodebuild build-for-testing"
+            << " -workspace "   << in.workspace
+            << " -scheme "      << in.scheme
+            << " -sdk "         << in.sdk
+            << " -destination \"platform=iOS Simulator,name=iPhone SE,OS=10.1\"";;
+            
+            auto pretty_command = xctest::pretty(command.str());
+            
+            std::cout
+            <<
+            "▸ "
+            << xctest::bold
+            << command.str()
+            << xctest::bold_off
+            << std::endl
+            << std::endl;
+            
+            auto result = system(pretty_command.c_str());
+            
+            std::cout << "Build command exited with code " << result << std::endl;
             return result;
         }
-    }
-    
-    {
         
-        xctest::model Model;
-        for (std::string device:Model.devices){
-            Model.result_map[device] = std::map<std::string,int>();
-        }
-        
-        int current_test = 0;
-        for(auto ios:Model.operating_systems){
-            for (std::string device:Model.devices){
-                
-                int percent = 100*current_test/static_cast<int>(Model.test_count());
-                std::stringstream progress;
-                progress << current_test++ << " of " << Model.test_count();
-                std::stringstream percentage;
-                percentage << percent << "%";
-                
-                ascii::table out("Stage II - running tests.");
-                (out << "complete"       << "test"         << "device" << "iOS") ++;
-                (out << percentage.str() << progress.str() <<  device  <<  ios ) ++;
-                std::cout << out << std::endl;
-                
-                std::stringstream command;
-                command
-                << "xcodebuild test-without-building"
-                << " -workspace " << workspace
-                << " -scheme " << scheme
-                << " -sdk " << sdk
-                << " -destination "
-                << "\""
-                << "platform=" << platform << ","
-                << "name=" << device << ","
-                << "OS=" << ios
-                << "\"";
-                
-                auto pretty_command = xctest::pretty(command.str());
-                
-                std::cout
-                <<
-                "▸ "
-                << xctest::bold
-                << command.str()
-                << xctest::bold_off
-                << std::endl
-                << std::endl;
-                
-                auto result = system(pretty_command.c_str());
-                Model.result_map[device][ios] = result;
-                
-                std::cout
-                << device
-                << " for OS "
-                << ios
-                << " have exited with code "
-                << result
-                << std::endl;
+        int test(){
+            
+            int current_test = 0;
+            for(auto ios:in.operating_systems){
+                for (std::string device:in.devices){
+                    
+                    int percent = 100*current_test/static_cast<int>(in.test_count());
+                    std::stringstream progress;
+                    progress << current_test++ << " of " << in.test_count();
+                    std::stringstream percentage;
+                    percentage << percent << "%";
+                    
+                    ascii::table out("Stage II - running tests.");
+                    (out << "complete"       << "test"         << "device" << "iOS") ++;
+                    (out << percentage.str() << progress.str() <<  device  <<  ios ) ++;
+                    std::cout << out << std::endl;
+                    
+                    std::stringstream command;
+                    command
+                    << "xcodebuild test-without-building"
+                    << " -workspace " << in.workspace
+                    << " -scheme " << in.scheme
+                    << " -sdk " << in.sdk
+                    << " -destination "
+                    << "\""
+                    << "platform=" << in.platform << ","
+                    << "name=" << device << ","
+                    << "OS=" << ios
+                    << "\"";
+                    
+                    auto pretty_command = xctest::pretty(command.str());
+                    
+                    std::cout
+                    <<
+                    "▸ "
+                    << xctest::bold
+                    << command.str()
+                    << xctest::bold_off
+                    << std::endl
+                    << std::endl;
+                    
+                    auto result = system(pretty_command.c_str());
+                    in.result_map[device][ios] = result;
+                    
+                    std::cout
+                    << device
+                    << " for OS "
+                    << ios
+                    << " have exited with code "
+                    << result
+                    << std::endl;
+                }
             }
             
-            std::string final_result = Model.out();
+            
+            for(auto ios:in.operating_systems){
+                for (std::string device:in.devices){
+                    int result = in.result_map[device][ios];
+                    // skip n/a simulator x os combo
+                    if(result != 0 && result != 17920){
+                        return result;
+                    }
+                }
+            }
+            return 0;
+        }
+        
+        int print(){
+            std::cout << in.out() << std::endl;
+            return 0;
+        }
+        
+        int slack(){
+            std::string final_result = in.out();
             std::cout << final_result << std::endl;
-            
-            
             
             std::stringstream payload;
             payload
             << "payload={"
-            << "\\\"channel\\\": \\\"#diners-builds-channel\\\", "
+            << "\\\"channel\\\": \\\"#diners-builds-channel\\\", \\\"link_names\\\": 1,"
             << "\\\"username\\\": \\\"Daher's Bot - xctest\\\", "
-            << "\\\"text\\\": \\\"iOS Pull Request #$TRAVIS_BUILD_NUMBER \\n\\`\\`\\`\\n" << final_result << "\\n\\`\\`\\`\\\", "
+            << "\\\"text\\\": \\\"iOS Pull Request #$TRAVIS_BUILD_NUMBER - "
+            << in.scheme
+            << " -  "
+            << in.slack_message
+            << " \\n\\`\\`\\`\\n"
+            << final_result
+            << "\\n\\`\\`\\`\\\", "
             << "\\\"icon_emoji\\\": \\\":ghost:\\\"}";
             std::stringstream command;
             command << "curl -X POST --data-urlencode \"";
@@ -245,14 +272,95 @@ int main(int argc, const char * argv[]) {
             <<
             "▸ "
             << xctest::bold
-            << command.str()
+            << "Notifying slack -> " << in.slack_channel
             << xctest::bold_off
             << std::endl
             << std::endl;
-            system(command.str().c_str());
+            return system(command.str().c_str());
         }
+    };
+}
+
+
+int main(int argc, const char * argv[]) {
+
+    auto arguments = xctest::options(argc,argv);
+    arguments.map_to({
+        {"-help",           xctest::option("produces the usage of this tool.")},
+        {"-version",        xctest::option("displays the version of the tool.")},
+        {"-verbose",        xctest::option("displays more output than usual.")},
+        {"-devices",        xctest::option("overrides the list of devices.")},
+        {"-os-list",        xctest::option("overrides the list of operating systems.")},
+      //{"-project",        xctest::option("the xcode project file. (optional if you specify workspace).")},
+        {"-workspace",      xctest::option("the xcode workspace file.")},
+        {"-scheme",         xctest::option("the scheme from your xcode project.")},
+        {"-sdk",            xctest::option("the sdk. (default: iphonesimulator).")},
+        {"-clean",          xctest::option("clean the project before building.")},
+        {"-platform",       xctest::option("the platform. (default: iOS Simulator.")},
+        {"-slack",          xctest::option("the name of the channel on slack.")},
+        {"-slack-message",  xctest::option("the extra message to add to slack")}
+    });
+    
+    if(arguments["-version"]){
+        std::cout << "xctest v1.0" << std::endl;
+        return 0;
     }
     
+    if(arguments["-help"]){
+        std::cout << arguments.print() << std::endl;
+        return 0;
+    }
+    
+    if(!arguments["-devices"]){
+        arguments["-devices"] += "iPhone 5s";
+        arguments["-devices"] += "iPhone 6s";
+        arguments["-devices"] += "iPhone 6s Plus";
+    }
+    if(!arguments["-os-list"]){
+        arguments["-os-list"] += "9.0";
+        arguments["-os-list"] += "9.1";
+        arguments["-os-list"] += "9.2";
+        arguments["-os-list"] += "9.3";
+        arguments["-os-list"] += "10.0";
+        arguments["-os-list"] += "10.1";
+        arguments["-os-list"] += "10.2";
+        arguments["-os-list"] += "10.3.1";
+    }
+    
+    if(!arguments["-scheme"]){
+        std::cerr << "please specify a scheme." << std::endl;
+        return -1;
+    }
+    
+    if(!arguments["-workspace"] && !arguments["-project"] ){
+        std::cerr << "please specify a project or a workspace." << std::endl;
+        return -1;
+    }
+    
+    if(!arguments["-sdk"]){
+        arguments["-sdk"] += "iphonesimulator";
+    }
+    
+    if(!arguments["-platform"]){
+        arguments["-platform"] += "iOS Simulator";
+    }
+    
+    if(arguments["-verbose"] || true){
+        std::cout << arguments.print_values() << std::endl;
+    }
+    
+    auto app = xctest::app(arguments);
+    
+    if(arguments["-clean"]){
+        app.clean();
+    }
+    app.build();
+    app.test();
+    
+    
+    if(arguments["-slack"]){
+        app.slack();
+    }
     
     return 0;
 }

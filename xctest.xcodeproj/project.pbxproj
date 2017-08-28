@@ -10,6 +10,7 @@
 		0CAF85121F50F2890082D45A /* core_tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CAF850F1F50F2890082D45A /* core_tree.cpp */; };
 		0CAF85131F50F2890082D45A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CAF85111F50F2890082D45A /* main.cpp */; };
 		0CAF85161F50F2990082D45A /* xctest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CAF85141F50F2990082D45A /* xctest.cpp */; };
+		0CAFBA1B1F5478360082D45A /* xctest_options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CAFBA191F5478360082D45A /* xctest_options.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,6 +31,10 @@
 		0CAF85111F50F2890082D45A /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = xctest/main.cpp; sourceTree = SOURCE_ROOT; };
 		0CAF85141F50F2990082D45A /* xctest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xctest.cpp; path = xctest/xctest.cpp; sourceTree = SOURCE_ROOT; };
 		0CAF85151F50F2990082D45A /* xctest.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = xctest.hpp; path = xctest/xctest.hpp; sourceTree = SOURCE_ROOT; };
+		0CAFBA191F5478360082D45A /* xctest_options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xctest_options.cpp; path = xctest/xctest_options.cpp; sourceTree = SOURCE_ROOT; };
+		0CAFBA1A1F5478360082D45A /* xctest_options.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = xctest_options.hpp; path = xctest/xctest_options.hpp; sourceTree = SOURCE_ROOT; };
+		0CAFBA1D1F547E380082D45A /* libboost_program_options.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_program_options.dylib; path = "boost-binary/lib/libboost_program_options.dylib"; sourceTree = "<group>"; };
+		0CAFBA1F1F547E530082D45A /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = "boost-binary/lib/libboost_program_options.a"; sourceTree = "<group>"; };
 		0CBA70991F4E0F4400ED07A2 /* xctest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -44,11 +49,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0CAFBA1C1F547E370082D45A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0CAFBA1F1F547E530082D45A /* libboost_program_options.a */,
+				0CAFBA1D1F547E380082D45A /* libboost_program_options.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		0CBA70901F4E0F4400ED07A2 = {
 			isa = PBXGroup;
 			children = (
 				0CBA709B1F4E0F4400ED07A2 /* xctest */,
 				0CBA709A1F4E0F4400ED07A2 /* Products */,
+				0CAFBA1C1F547E370082D45A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -68,6 +83,8 @@
 				0CAF85111F50F2890082D45A /* main.cpp */,
 				0CAF85141F50F2990082D45A /* xctest.cpp */,
 				0CAF85151F50F2990082D45A /* xctest.hpp */,
+				0CAFBA191F5478360082D45A /* xctest_options.cpp */,
+				0CAFBA1A1F5478360082D45A /* xctest_options.hpp */,
 			);
 			name = xctest;
 			path = ios_test_matrix;
@@ -132,6 +149,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0CAF85131F50F2890082D45A /* main.cpp in Sources */,
+				0CAFBA1B1F5478360082D45A /* xctest_options.cpp in Sources */,
 				0CAF85161F50F2990082D45A /* xctest.cpp in Sources */,
 				0CAF85121F50F2890082D45A /* core_tree.cpp in Sources */,
 			);
@@ -233,6 +251,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEVELOPMENT_TEAM = NF856H64DK;
+				HEADER_SEARCH_PATHS = .;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/boost-binary/lib",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
@@ -242,6 +265,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEVELOPMENT_TEAM = NF856H64DK;
+				HEADER_SEARCH_PATHS = .;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/boost-binary/lib",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
