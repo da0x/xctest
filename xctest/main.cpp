@@ -16,6 +16,7 @@
 namespace xctest {
     
     namespace result {
+        std::string notyet     = "";//
         std::string errormark  = "n/a";         // error
         std::string checkmark  = "\u2713 pass"; // ✓
         std::string failmark   = "\u2717 fail"; // ✗
@@ -33,27 +34,27 @@ namespace xctest {
             "9.0", "9.1", "9.2", "9.3", "10.0", "10.1", "10.2", "10.3.1"
         };
         std::vector<std::string> devices = {
-            "iPad (5th generation)",
-            "iPad Air 2",
-            "iPad Pro (9.7 inch)",
-            "iPad Pro (10.5-inch)",
-            "iPad Pro (12.9 inch)",
-            "iPad Pro (12.9-inch) (2nd generation)",
-            "iPhone 5",
+//            "iPad (5th generation)",
+//            "iPad Air 2",
+//            "iPad Pro (9.7 inch)",
+//            "iPad Pro (10.5-inch)",
+//            "iPad Pro (12.9 inch)",
+//            "iPad Pro (12.9-inch) (2nd generation)",
+//            "iPhone 5",
             "iPhone 5s",
-            "iPhone 6",
-            "iPhone 6 Plus",
+//            "iPhone 6",
+//            "iPhone 6 Plus",
             "iPhone 6s",
             "iPhone 6s Plus",
-            "iPhone 7",
-            "iPhone 7 Plus",
-            "iPhone SE",
+//            "iPhone 7",
+//            "iPhone 7 Plus",
+//            "iPhone SE",
         };
         
         std::map<std::string,std::map<std::string,int>> result_map;
         
     public:
-        void print(){
+        std::string out(){
             ascii::table myTable("Test Results");
             ascii::table &T = myTable;
             T = T("Devices x OS");
@@ -69,6 +70,7 @@ namespace xctest {
                     int result = this->result_map[device][os];
                     std::stringstream result_string;
                     switch(result){
+                        case -1:    result_string << xctest::result::notyet;     break;
                         case 0:     result_string << xctest::result::checkmark;  break;
                         case 2:     result_string << xctest::result::cancelmark; break;
                         case 17920: result_string << xctest::result::errormark;  break;
@@ -81,7 +83,9 @@ namespace xctest {
             }
             T ++;
             
-            std::cout << myTable << std::endl;
+            std::stringstream out;
+            out << myTable << std::endl;
+            return out.str();
         }
         
         inline
@@ -112,6 +116,7 @@ namespace xctest {
 
 
 int main(int argc, const char * argv[]) {
+
     std::cout << "Usage: \n";
     std::cout << "$ xctest -workspace <workspace> -scheme <scheme> -sdk <sdk> -platform <platform>" << std::endl;
     system("");
@@ -119,7 +124,6 @@ int main(int argc, const char * argv[]) {
     auto scheme     = "DCI";
     auto sdk        = "iphonesimulator";
     auto platform   = "iOS Simulator";
-    
     
     // build
     {
@@ -156,14 +160,15 @@ int main(int argc, const char * argv[]) {
     }
     
     {
-        xctest::model Model;
         
+        xctest::model Model;
+        for (std::string device:Model.devices){
+            Model.result_map[device] = std::map<std::string,int>();
+        }
         
         int current_test = 0;
-        for (std::string device:Model.devices){
-            
-            Model.result_map[device] = std::map<std::string,int>();
-            for(auto os:Model.operating_systems){
+        for(auto ios:Model.operating_systems){
+            for (std::string device:Model.devices){
                 
                 int percent = 100*current_test/static_cast<int>(Model.test_count());
                 std::stringstream progress;
@@ -173,7 +178,7 @@ int main(int argc, const char * argv[]) {
                 
                 ascii::table out("Stage II - running tests.");
                 (out << "complete"       << "test"         << "device" << "iOS") ++;
-                (out << percentage.str() << progress.str() <<  device  <<   os ) ++;
+                (out << percentage.str() << progress.str() <<  device  <<  ios ) ++;
                 std::cout << out << std::endl;
                 
                 std::stringstream command;
@@ -186,7 +191,7 @@ int main(int argc, const char * argv[]) {
                 << "\""
                 << "platform=" << platform << ","
                 << "name=" << device << ","
-                << "OS=" << os
+                << "OS=" << ios
                 << "\"";
                 
                 auto pretty_command = xctest::pretty(command.str());
@@ -201,18 +206,50 @@ int main(int argc, const char * argv[]) {
                 << std::endl;
                 
                 auto result = system(pretty_command.c_str());
-                Model.result_map[device][os] = result;
+                Model.result_map[device][ios] = result;
                 
                 std::cout
                 << device
                 << " for OS "
-                << os
+                << ios
                 << " have exited with code "
                 << result
                 << std::endl;
             }
             
-            Model.print();
+            std::string final_result = Model.out();
+            std::cout << final_result << std::endl;
+            
+            
+            
+            std::stringstream payload;
+            payload
+            << "payload={"
+            << "\\\"channel\\\": \\\"#diners-builds-channel\\\", "
+            << "\\\"username\\\": \\\"Daher's Bot - xctest\\\", "
+            << "\\\"text\\\": \\\"iOS Pull Request #$TRAVIS_BUILD_NUMBER \\n\\`\\`\\`\\n" << final_result << "\\n\\`\\`\\`\\\", "
+            << "\\\"icon_emoji\\\": \\\":ghost:\\\"}";
+            std::stringstream command;
+            command << "curl -X POST --data-urlencode \"";
+            for(auto c:payload.str())
+            {
+                if( c == '\n'){
+                    command << "\\n";
+                    continue;
+                }
+                command << c;
+            }
+            command << "\" https://hooks.slack.com/services/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";
+            
+            std::cout
+            <<
+            "▸ "
+            << xctest::bold
+            << command.str()
+            << xctest::bold_off
+            << std::endl
+            << std::endl;
+            system(command.str().c_str());
         }
     }
     
