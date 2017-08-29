@@ -33,8 +33,6 @@
 		0CAF85151F50F2990082D45A /* xctest.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = xctest.hpp; path = xctest/xctest.hpp; sourceTree = SOURCE_ROOT; };
 		0CAFBA191F5478360082D45A /* xctest_options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xctest_options.cpp; path = xctest/xctest_options.cpp; sourceTree = SOURCE_ROOT; };
 		0CAFBA1A1F5478360082D45A /* xctest_options.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = xctest_options.hpp; path = xctest/xctest_options.hpp; sourceTree = SOURCE_ROOT; };
-		0CAFBA1D1F547E380082D45A /* libboost_program_options.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libboost_program_options.dylib; path = "boost-binary/lib/libboost_program_options.dylib"; sourceTree = "<group>"; };
-		0CAFBA1F1F547E530082D45A /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = "boost-binary/lib/libboost_program_options.a"; sourceTree = "<group>"; };
 		0CBA70991F4E0F4400ED07A2 /* xctest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -52,8 +50,6 @@
 		0CAFBA1C1F547E370082D45A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				0CAFBA1F1F547E530082D45A /* libboost_program_options.a */,
-				0CAFBA1D1F547E380082D45A /* libboost_program_options.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

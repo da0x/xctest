@@ -41,6 +41,10 @@ void options::map_to(option::map option_map){
             option& option_object = option_iterator->second;
             option_object.enable();
         } else {
+            if(option_iterator==map.end()){
+                std::cout << "Ignoring " << argument << std::endl;
+                continue;
+            }
             // it's a value
             auto option_name      = option_iterator->first;
             option& option_object = option_iterator->second;

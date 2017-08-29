@@ -29,7 +29,13 @@ namespace xctest {
         void operator +=(const string& value){
             this->option_values.push_back(value);
         }
-        const vector& values() const { return this->option_values; }
+        const vector values() const { return this->option_values; }
+        const string value() const {
+            if(this->option_values.size()>0)
+                return this->option_values[0];
+            else
+                return string();
+        }
         void enable(){ option_is_enabled = true; }
         bool enabled(){ return option_is_enabled; }
         std::string description(){ return option_description; }
@@ -51,6 +57,7 @@ namespace xctest {
         std::string print();
         std::string print_values();
         
+        inline
         option& operator[](option::string key){
             auto iterator = map.find(key);
             if(iterator != map.end()){
