@@ -4,8 +4,7 @@ Creates a test matrix for xcode projects.
 Typical usage on travis ci in your script is to use something like this:
 
 Latest binary is here:
-
-http://github.com/daher-alfawares/xctest/xctest-bin/xctest-1.0.0.zip
+https://github.com/daher-alfawares/xctest/raw/master/xctest-bin/xctest-1.0.0.zip
 
 ```    
 if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]
