@@ -1,18 +1,37 @@
 # xctest
 Creates a test matrix for xcode projects.
 
-Typical usage in your script is to use something like this:
+Typical usage on travis ci in your script is to use something like this:
+
+Latest binary is here:
+
+http://github.com/daher-alfawares/xctest/xctest-bin/xctest-1.0.0.zip
 
 ```    
+if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]
+then
+    
     ./xctest -version
     ./xctest \
      -workspace MyApp.xcworkspace \
      -scheme MyApp \
-     -devices "iPhone 6" "iPhone 7" \
+     -devices "iPhone 7" "iPhone 7 Plus" \
      -os-list "10.3.1" \
-     -slack-channel "#app-builds-channel" \
-     -slack-message "Hello @john @emma pay attention!" \
-     -slack-url https://hooks.slack.com/services/##########/###########/#######################
+     -slack-channel "#builds-channel" \
+     -slack-message "Hello @daher @rpowell pay attention!" \
+     -slack-url https://hooks.slack.com/services/########/#######/#####################
+
+    if [ ${PIPESTATUS[0]} -ne 0 ]
+    then
+        echo "Error: Test failed."
+        cat $ERROR_LOG
+        exit 1
+    else
+    echo "Test is complete."
+        exit 0
+    fi
+
+fi
 ```
 
 The list of -devices and -os-list are optional. The app will display what it defaults to when you don't provide a specific command.
