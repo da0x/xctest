@@ -1,5 +1,12 @@
 # xctest
-Creates a test matrix for xcode projects.
+Creates a test matrix for xcode projects. You provide a list of devices and list of operating systems. This tool will schedule all possible combinations.
+
+## Prerequisits
+
+- xcode version 8.3.3 (8E3004b)
+- xcpretty version 0.2.8
+
+## Download and Usage
 
 Typical usage on travis ci in your script is to use something like this:
 
