@@ -7,11 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0C10FD461F6B2E5E001D18AE /* xctest_process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0C10FD441F6B2E5E001D18AE /* xctest_process.cpp */; };
-		0C10FD491F6B3172001D18AE /* xctest_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0C10FD471F6B3172001D18AE /* xctest_text.cpp */; };
-		0C9E3F2B1F688F4F000C6559 /* xctest_slack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0C9E3F291F688F4F000C6559 /* xctest_slack.cpp */; };
-		0C9E3F2E1F68901A000C6559 /* xctest_model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0C9E3F2C1F68901A000C6559 /* xctest_model.cpp */; };
-		0C9E3F311F689080000C6559 /* xctest_result.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0C9E3F2F1F689080000C6559 /* xctest_result.cpp */; };
 		0CAF85121F50F2890082D45A /* core_tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CAF850F1F50F2890082D45A /* core_tree.cpp */; };
 		0CAF85131F50F2890082D45A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CAF85111F50F2890082D45A /* main.cpp */; };
 		0CAF85161F50F2990082D45A /* xctest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CAF85141F50F2990082D45A /* xctest.cpp */; };
@@ -31,16 +26,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0C10FD441F6B2E5E001D18AE /* xctest_process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xctest_process.cpp; path = xctest/xctest_process.cpp; sourceTree = SOURCE_ROOT; };
-		0C10FD451F6B2E5E001D18AE /* xctest_process.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = xctest_process.hpp; path = xctest/xctest_process.hpp; sourceTree = SOURCE_ROOT; };
-		0C10FD471F6B3172001D18AE /* xctest_text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xctest_text.cpp; path = xctest/xctest_text.cpp; sourceTree = SOURCE_ROOT; };
-		0C10FD481F6B3172001D18AE /* xctest_text.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = xctest_text.hpp; path = xctest/xctest_text.hpp; sourceTree = SOURCE_ROOT; };
-		0C9E3F291F688F4F000C6559 /* xctest_slack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xctest_slack.cpp; path = xctest/xctest_slack.cpp; sourceTree = SOURCE_ROOT; };
-		0C9E3F2A1F688F4F000C6559 /* xctest_slack.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = xctest_slack.hpp; path = xctest/xctest_slack.hpp; sourceTree = SOURCE_ROOT; };
-		0C9E3F2C1F68901A000C6559 /* xctest_model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xctest_model.cpp; path = xctest/xctest_model.cpp; sourceTree = SOURCE_ROOT; };
-		0C9E3F2D1F68901A000C6559 /* xctest_model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = xctest_model.hpp; path = xctest/xctest_model.hpp; sourceTree = SOURCE_ROOT; };
-		0C9E3F2F1F689080000C6559 /* xctest_result.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xctest_result.cpp; path = xctest/xctest_result.cpp; sourceTree = SOURCE_ROOT; };
-		0C9E3F301F689080000C6559 /* xctest_result.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = xctest_result.hpp; path = xctest/xctest_result.hpp; sourceTree = SOURCE_ROOT; };
 		0CAF850F1F50F2890082D45A /* core_tree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_tree.cpp; path = xctest/core_tree.cpp; sourceTree = SOURCE_ROOT; };
 		0CAF85101F50F2890082D45A /* core_tree.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = core_tree.hpp; path = xctest/core_tree.hpp; sourceTree = SOURCE_ROOT; };
 		0CAF85111F50F2890082D45A /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = xctest/main.cpp; sourceTree = SOURCE_ROOT; };
@@ -89,23 +74,13 @@
 		0CBA709B1F4E0F4400ED07A2 /* xctest */ = {
 			isa = PBXGroup;
 			children = (
-				0C10FD441F6B2E5E001D18AE /* xctest_process.cpp */,
-				0C10FD451F6B2E5E001D18AE /* xctest_process.hpp */,
 				0CAF850F1F50F2890082D45A /* core_tree.cpp */,
 				0CAF85101F50F2890082D45A /* core_tree.hpp */,
 				0CAF85111F50F2890082D45A /* main.cpp */,
-				0C9E3F2F1F689080000C6559 /* xctest_result.cpp */,
-				0C9E3F301F689080000C6559 /* xctest_result.hpp */,
-				0C9E3F2C1F68901A000C6559 /* xctest_model.cpp */,
-				0C9E3F2D1F68901A000C6559 /* xctest_model.hpp */,
-				0C9E3F291F688F4F000C6559 /* xctest_slack.cpp */,
-				0C9E3F2A1F688F4F000C6559 /* xctest_slack.hpp */,
 				0CAF85141F50F2990082D45A /* xctest.cpp */,
 				0CAF85151F50F2990082D45A /* xctest.hpp */,
 				0CAFBA191F5478360082D45A /* xctest_options.cpp */,
 				0CAFBA1A1F5478360082D45A /* xctest_options.hpp */,
-				0C10FD471F6B3172001D18AE /* xctest_text.cpp */,
-				0C10FD481F6B3172001D18AE /* xctest_text.hpp */,
 			);
 			name = xctest;
 			path = ios_test_matrix;
@@ -137,7 +112,7 @@
 		0CBA70911F4E0F4400ED07A2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "Daher Alfawares";
 				TargetAttributes = {
 					0CBA70981F4E0F4400ED07A2 = {
@@ -170,14 +145,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				0CAF85131F50F2890082D45A /* main.cpp in Sources */,
-				0C10FD491F6B3172001D18AE /* xctest_text.cpp in Sources */,
 				0CAFBA1B1F5478360082D45A /* xctest_options.cpp in Sources */,
-				0C9E3F2E1F68901A000C6559 /* xctest_model.cpp in Sources */,
 				0CAF85161F50F2990082D45A /* xctest.cpp in Sources */,
-				0C10FD461F6B2E5E001D18AE /* xctest_process.cpp in Sources */,
 				0CAF85121F50F2890082D45A /* core_tree.cpp in Sources */,
-				0C9E3F2B1F688F4F000C6559 /* xctest_slack.cpp in Sources */,
-				0C9E3F311F689080000C6559 /* xctest_result.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,9 +164,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -204,11 +172,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -248,9 +212,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -258,11 +220,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -290,7 +248,10 @@
 			buildSettings = {
 				DEVELOPMENT_TEAM = NF856H64DK;
 				HEADER_SEARCH_PATHS = .;
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/boost-binary/lib",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
@@ -301,7 +262,10 @@
 			buildSettings = {
 				DEVELOPMENT_TEAM = NF856H64DK;
 				HEADER_SEARCH_PATHS = .;
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/boost-binary/lib",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};

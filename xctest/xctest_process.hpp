@@ -11,15 +11,11 @@
 
 #include <string>
 #include <sstream>
-#include <vector>
 
 namespace xctest {
     class process {
-        std::string process_name;
-        std::string arguments;
     public:
-        process(std::string process, std::string args):process_name(process),arguments(args) {}
-        void run();
+        process(std::string process);
         std::string output();
     private:
         std::stringstream out;

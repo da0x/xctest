@@ -13,10 +13,17 @@
 #include <map>
 #include "core_tree.hpp"
 #include "xctest_options.hpp"
-#include "xctest_model.hpp"
-#include "xctest_text.hpp"
 
 namespace xctest {
+    
+    namespace result {
+        std::string notyet     = "";//
+        std::string notapplicable  = "n/a";         // error
+        std::string checkmark  = "\u2713 pass"; // ✓
+        std::string failmark   = "\u2717 fail"; // ✗
+        std::string cancelmark = "-";           // canceled.
+        std::string unknown    = "?";
+    }
     
     namespace arg {
         
@@ -35,6 +42,87 @@ namespace xctest {
         std::string slack_url = "-slack-url";
     }
     
+    namespace text {
+        std::ostream& bold(std::ostream& os)
+        {
+            return os << "\e[1m";
+        }
+        
+        std::ostream& bold_off(std::ostream& os)
+        {
+            return os << "\e[0m";
+        }
+        
+        std::string highlighted(std::string in){
+            std::stringstream out;
+            out
+            << "▸ "
+            << bold
+            << in
+            << bold_off
+            << std::endl;
+            return out.str();
+        }
+    }
+    
+    class model {
+    public:
+        std::vector<std::string> operating_systems;
+        std::vector<std::string> devices;
+        std::map<std::string,std::map<std::string,int>> result_map;
+        
+        std::string workspace;
+        std::string scheme;
+        std::string sdk;
+        std::string platform;
+        std::string slack_channel;
+        std::string slack_message;
+        std::string slack_url;
+        
+    public:
+        model(){
+            for (std::string device:this->devices){
+                this->result_map[device] = std::map<std::string,int>();
+            }
+        }
+        std::string out(){
+            ascii::table myTable("Test Results");
+            ascii::table &T = myTable;
+            T = T("Devices x OS");
+            for (auto os:this->operating_systems){
+                T = T(os);
+            }
+            T++;
+            
+            for(auto device:this->devices){
+                T = T(device);
+                
+                for(auto os:this->operating_systems){
+                    int result = this->result_map[device][os];
+                    std::stringstream result_string;
+                    switch(result){
+                        case -1:    result_string << xctest::result::notyet;     break;
+                        case 0:     result_string << xctest::result::checkmark;  break;
+                        case 2:     result_string << xctest::result::cancelmark; break;
+                        case 17920: result_string << xctest::result::notapplicable;  break;
+                        case 16640: result_string << xctest::result::failmark;   break;
+                        default:    result_string << result;
+                    }
+                    T = T(result_string.str());
+                }
+                T++;
+            }
+            
+            std::stringstream out;
+            out << myTable << std::endl;
+            return out.str();
+        }
+        
+        inline
+        std::size_t test_count(){
+            return this->devices.size() * this->operating_systems.size();
+        }
+    };
     
     std::string pretty(std::string command){
         std::stringstream pretty_command;
@@ -47,7 +135,7 @@ namespace xctest {
 
     
     class app {
-        model in;
+        xctest::model in;
     public:
         app(xctest::options arguments){
             in.devices              = arguments[xctest::arg::devices].values();
@@ -83,8 +171,6 @@ namespace xctest {
             << " -scheme "      << in.scheme
             << " -sdk "         << in.sdk
             << " -destination \"platform=iOS Simulator,name=iPhone SE,OS=10.1\"";;
-            
-            //xcodebuild build-for-testing -workspace DCI.xcworkspace -scheme DCI -sdk iphoneos10.3 -destination generic/platform=iOS
             
             auto pretty_command = xctest::pretty(command.str());
             
@@ -126,8 +212,6 @@ namespace xctest {
                     << "OS=" << ios
                     << "\"";
                     
-                    // xcodebuild test-without-building -workspace DCI.xcworkspace -scheme DCI -sdk iphoneos10.3 -destination id=7cf65ea876e07a222c28b4ce92430b281473c9fe 
-                    
                     auto pretty_command = xctest::pretty(command.str());
                     
                     std::cout << xctest::text::highlighted(command.str()) << std::endl;
@@ -164,6 +248,40 @@ namespace xctest {
             return 0;
         }
         
+        int slack(){
+            std::string final_result = in.out();
+            std::cout << final_result << std::endl;
+            
+            std::stringstream payload;
+            payload
+            << "payload={"
+            << "\\\"channel\\\": \\\"" << in.slack_channel << "\\\","
+            << "\\\"link_names\\\": 1,"
+            << "\\\"username\\\": \\\"Daher's Bot - xctest\\\", "
+            << "\\\"text\\\": \\\"iOS Pull Request"
+                            << "\\n - Build #$TRAVIS_BUILD_NUMBER"
+                            << "\\n - " << in.scheme
+                            << "\\n - " << "Test " << (this->test_result() ? "Failed!" : "Succeeded")
+                            << "\\n - " << in.slack_message
+                            << " \\n\\`\\`\\`\\n"
+                            << final_result
+                            << "\\n\\`\\`\\`\\\", "
+            << "\\\"icon_emoji\\\": \\\":ghost:\\\"}";
+            std::stringstream command;
+            command << "curl -X POST --data-urlencode \"";
+            for(auto c:payload.str())
+            {
+                if( c == '\n'){
+                    command << "\\n";
+                    continue;
+                }
+                command << c;
+            }
+            command << "\" " << in.slack_url;
+            
+            std::cout << xctest::text::highlighted(command.str()) << std::endl;
+            return system(command.str().c_str());
+        }
     };
     
 
@@ -172,12 +290,6 @@ namespace xctest {
 #include "xctest_process.hpp"
 
 int main(int argc, const char * argv[]) {
-    
-    xctest::process process("system_profiler SPUSBDataType | sed -n -E -e \"/(iPhone|iPad)/,/Serial/s/ *Serial Number: *(.+)/\1/p\"", "");
-    
-    process.run();
-    return 0;
-    std::cout << argv[0] << std::endl;
 
     auto arguments = xctest::options(argc,argv);
     arguments.map_to({
@@ -190,15 +302,13 @@ int main(int argc, const char * argv[]) {
         {xctest::arg::scheme,         xctest::option("the scheme from your xcode project.")},
         {xctest::arg::sdk,            xctest::option("the sdk. (default: iphonesimulator).")},
         {xctest::arg::clean,          xctest::option("clean the project before building.")},
-        {xctest::arg::platform,       xctest::option("the platform. (default: iOS Simulator).")},
+        {xctest::arg::platform,       xctest::option("the platform. (default: iOS Simulator.")},
         {xctest::arg::slack_channel,  xctest::option("the name of the channel on slack.")},
         {xctest::arg::slack_message,  xctest::option("the extra message to add to slack.")},
         {xctest::arg::slack_url,      xctest::option("the url to access your slack.")},
     });
     
-    auto a = arguments[xctest::arg::version];
-    a.description();
-    if(){
+    if(arguments[xctest::arg::version]){
         std::cout << "xctest v1.0 by Daher Alfawares" << std::endl;
         return 0;
     }
@@ -256,7 +366,7 @@ int main(int argc, const char * argv[]) {
     
     if(arguments[xctest::arg::slack_channel] &&
        arguments[xctest::arg::slack_url]){
-    //    app.slack();
+        app.slack();
     }
     
     return app.test_result();
