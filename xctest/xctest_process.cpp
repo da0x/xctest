@@ -8,16 +8,20 @@
 
 #include "xctest_process.hpp"
 #include <iostream>
+#include <stdio.h>
 
 using namespace xctest;
 
-process::process(std::string command){
-    char buff[1024] = {0};
-    std::cout<< command << std::endl;
-    FILE *fpipe = popen(command.c_str(),"r");
-    while(fgets(buff,sizeof(buff),fpipe)!=NULL)
-        this->out << buff << std::endl;
-    pclose(fpipe);
+
+void process::run(){
+    std::stringstream  result_stream;
+   // std::streambuf     *backup  = std::cout.rdbuf( result_stream.rdbuf() );
+    
+    int res = std::system(this->process_name.c_str());
+    
+    //std::cout.rdbuf(backup);
+    
+    std::cout << result_stream.str();
 }
 
 std::string process::output(){
